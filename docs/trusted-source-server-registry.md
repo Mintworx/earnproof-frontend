@@ -1,5 +1,14 @@
 # Trusted-source registry (API v1)
 
+This is frontend-only integration work. The routes below are the required client
+contract, not a claim that they exist on the current backend. Backend `develop`
+inspected November 18 provides user-scoped `/trusted-sources` CRUD with
+`expectedRevision`, not organization-scoped disable/test/history/network
+operations. That API cannot safely emulate tenant-wide trust. Until matching
+endpoints are available, failed reads block creation and expose no trusted local
+registry. Synthetic API tests cover the client contract; deployed end-to-end
+behavior remains a backend dependency. No backend source is changed here.
+
 The workspace now uses organization-scoped list/create/update/disable/test/history
 routes under `/organizations/{organizationId}/trusted-sources`, defined in the
 versioned OpenAPI fixture. Backend deployment support is required. The server

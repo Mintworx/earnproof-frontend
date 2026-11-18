@@ -33,6 +33,7 @@ export function TrustedSourceList({
   const [editIssuerId, setEditIssuerId] = useState("");
   const [editVersion, setEditVersion] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
+  const [needsRefresh, setNeedsRefresh] = useState(false);
   const busy = useRef(false);
   const lifetime = useRef<AbortController | null>(null);
   useEffect(() => { const controller = new AbortController(); lifetime.current = controller; return () => controller.abort(); }, [userId]);
@@ -66,7 +67,7 @@ export function TrustedSourceList({
   };
 
   const saveEdit = async (id: string) => {
-    if (busy.current || editVersion === null) return;
+    if (busy.current || needsRefresh || editVersion === null) return;
     busy.current = true; setPending(true);
     setError(null);
     try {
@@ -83,6 +84,7 @@ export function TrustedSourceList({
       onTrustedSourceUpdated(updated);
       setEditingId(null);
     } catch {
+      setNeedsRefresh(true);
       setError("Update was not confirmed or the source changed. Refresh before retrying.");
     } finally {
       busy.current = false; setPending(false);
@@ -98,7 +100,7 @@ export function TrustedSourceList({
   };
 
   const handleConfirmDelete = async () => {
-    if (!confirmDelete || busy.current) return;
+    if (!confirmDelete || busy.current || needsRefresh) return;
     busy.current = true; setPending(true);
     try {
       const source = trustedSources.find(item => item.id === confirmDelete.id);
@@ -108,7 +110,8 @@ export function TrustedSourceList({
       if (signal.aborted) return;
       onTrustedSourceDeleted(confirmDelete.id);
     } catch {
-      setError("Failed to delete trusted source. Please try again.");
+      setNeedsRefresh(true);
+      setError("Disable was not confirmed. Refresh before retrying.");
     } finally {
       busy.current = false; setPending(false);
       setConfirmDelete(null);
@@ -189,7 +192,7 @@ export function TrustedSourceList({
               <div className="flex gap-2">
                 <button
                   onClick={() => saveEdit(record.id)}
-                  disabled={pending}
+                  disabled={pending || needsRefresh}
                   className="h-8 rounded border border-emerald-300/30 px-3 text-xs font-medium text-emerald-200 hover:bg-emerald-300/10 transition"
                   type="button"
                 >
@@ -217,7 +220,7 @@ export function TrustedSourceList({
               <div className="flex gap-2">
                 <button
                   onClick={() => startEdit(record)}
-                  disabled={pending || record.status !== "ACTIVE"}
+                  disabled={pending || needsRefresh || record.status !== "ACTIVE"}
                   className="h-8 rounded border border-cyan-300/30 px-3 text-xs font-medium text-cyan-200 hover:bg-cyan-300/10 transition"
                   type="button"
                 >
@@ -225,7 +228,7 @@ export function TrustedSourceList({
                 </button>
                 <button
                   onClick={(e) => handleDeleteClick(record, e.currentTarget)}
-                  disabled={pending || record.status !== "ACTIVE"}
+                  disabled={pending || needsRefresh || record.status !== "ACTIVE"}
                   className="h-8 rounded border border-rose-300/30 px-3 text-xs font-medium text-rose-200 hover:bg-rose-300/10 transition"
                   type="button"
                 >

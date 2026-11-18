@@ -29,7 +29,7 @@ export function isTrustedSourceEligible(record: TrustedSourceRecord, issuerId: s
 }
 export async function listTrustedSources(userId: string, signal?: AbortSignal): Promise<TrustedSourceRecord[]> {
   const context = scope(userId);
-  const page = validateApiResponse(z.object({ sources: z.array(trustedSourceSchema) }), await apiClient<unknown>({ path: context.root, headers: context.headers, signal }));
+  const page = validateApiResponse(z.object({ sources: z.array(trustedSourceSchema) }), await apiClient<unknown>({ path: context.root, headers: context.headers, signal, skipCoalescing: true }));
   return page.sources.map(item => checked(item, context.organizationId)).filter(item => item.status !== "DELETED");
 }
 export async function createTrustedSource(userId: string, input: z.infer<typeof createTrustedSourceSchema>, signal?: AbortSignal): Promise<TrustedSourceRecord> {

@@ -16,6 +16,8 @@ it("keeps the version captured when editing and announces a stale write", async 
   jest.mocked(updateTrustedSource).mockRejectedValue(new Error("Conflict")); render(<TrustedSourceList {...props} />);
   fireEvent.click(screen.getByRole("button", { name: "Edit" })); fireEvent.change(screen.getByLabelText("Trusted source name"), { target: { value: "New name" } }); fireEvent.click(screen.getByRole("button", { name: "Save" }));
   await screen.findByRole("alert"); expect(updateTrustedSource).toHaveBeenCalledWith("user-1", record.id, { name: "New name", issuerId: "issuer-1" }, 1, expect.any(AbortSignal)); expect(props.onTrustedSourceUpdated).not.toHaveBeenCalled();
+  expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "Save" })); expect(updateTrustedSource).toHaveBeenCalledTimes(1);
 });
 it("loads connection tests and history from the server", async () => {
   jest.mocked(testTrustedSource).mockResolvedValue({ eligible: true, testedAt: record.updatedAt }); jest.mocked(getTrustedSourceHistory).mockResolvedValue([{ id: "event-1", action: "CREATE", version: 1, occurredAt: record.createdAt }]); render(<TrustedSourceList {...props} />);

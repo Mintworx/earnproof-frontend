@@ -60,7 +60,7 @@ function TrustedSourceWorkspace() {
       const [issuersData, sources] = await Promise.all([getIssuers(sessionToken, controller.signal), listTrustedSources(sessionUserId, controller.signal)]);
 
       if (!controller.signal.aborted) {
-        setIssuers(issuersData.filter(issuer => issuer.status === "ACTIVE" && (!issuer.organizationId || issuer.organizationId === readStoredOrganizationId())));
+        setIssuers(issuersData.filter(issuer => issuer.status === "ACTIVE" && Boolean(issuer.organizationId) && issuer.organizationId === readStoredOrganizationId()));
         setTrustedSources(sources);
       }
     } catch {
@@ -168,14 +168,14 @@ function TrustedSourceWorkspace() {
           </div>
         )}
 
-        <TrustedSourceList
+        {loading ? <p role="status">Loading server trusted sources...</p> : <TrustedSourceList
           userId={session.user.id}
           trustedSources={trustedSources}
           issuers={issuers}
           loading={loading}
           onTrustedSourceUpdated={handleTrustedSourceUpdated}
           onTrustedSourceDeleted={handleTrustedSourceDeleted}
-        />
+        />}
       </section>
     </div>
   );
