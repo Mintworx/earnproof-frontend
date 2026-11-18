@@ -650,6 +650,7 @@ export async function signOutSessionFromRiskEvent(params: {
   viewerUserId?: string;
   viewerOrganizationId?: string;
   now?: number;
+  signal?: AbortSignal;
 }): Promise<{
   activeSessions: SessionRecord[];
   revokedSessions: SessionRecord[];
@@ -666,11 +667,14 @@ export async function signOutSessionFromRiskEvent(params: {
   });
 
   // Ensure active sessions are initialized for the user before revoking
-  const activeBefore = await listActiveSessions(params.userId);
+  if (params.signal?.aborted) throw new DOMException("Cancelled", "AbortError");
+  const activeBefore = await listActiveSessions(params.userId, params.signal);
+  if (params.signal?.aborted) throw new DOMException("Cancelled", "AbortError");
   const target = activeBefore.find((s) => s.id === params.sessionId);
 
   if (!target || target.isCurrent) throw new TenantSessionAccessError("Select an active remote session from the server inventory.");
-  await revokeSession(params.userId, params.sessionId);
+  await revokeSession(params.userId, params.sessionId, params.signal);
+  if (params.signal?.aborted) throw new DOMException("Cancelled", "AbortError");
 
   const nowIso = new Date(params.now ?? Date.now()).toISOString();
   recordSessionSecurityEvent(
@@ -690,8 +694,8 @@ export async function signOutSessionFromRiskEvent(params: {
   );
 
   return {
-    activeSessions: await listActiveSessions(params.userId),
-    revokedSessions: await listRecentlyRevokedSessions(params.userId),
+    activeSessions: await listActiveSessions(params.userId, params.signal),
+    revokedSessions: await listRecentlyRevokedSessions(params.userId, params.signal),
     events: listSessionSecurityEvents({
       userId: params.userId,
       organizationId: params.organizationId,

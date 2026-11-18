@@ -199,6 +199,10 @@ describe("session risk and reauthentication history (#244)", () => {
   });
 
   describe("linking risk events to sessions and remote sign-out", () => {
+    it("honors cancellation before listing or revoking a remote session", async () => {
+      const controller = new AbortController(); controller.abort();
+      await expect(signOutSessionFromRiskEvent({ userId: USER_A, organizationId: ORG_A, sessionId: "seed-1", riskEventId: "synthetic-event", signal: controller.signal })).rejects.toMatchObject({ name: "AbortError" });
+    });
     it("resolves active current, active remote, and revoked sessions accurately", async () => {
       const active = await listActiveSessions(USER_A);
       const revoked = await listRecentlyRevokedSessions(USER_A);
