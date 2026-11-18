@@ -10,25 +10,36 @@ export const API_SPEC_SOURCE = "lib/api/openapi/earnproof-api.v1.json" as const;
 export const API_SPEC_VERSION = "1.0.0" as const;
 export interface RemoteSession {
   id: string;
-  deviceLabel: string;
-  createdAt: string;
-  lastUsedAt: string;
-  revokedAt: string | null;
+  deviceLabel?: string;
+  createdAt?: string | null;
+  firstSeenAt?: string | null;
+  lastSeenAt?: string | null;
+  lastUsedAt?: string | null;
+  expiresAt: string;
+  revokedAt?: string | null;
+  current?: boolean;
+  isCurrent?: boolean;
 }
 
-export interface RemoteSessionPage {
+export interface SessionInventoryEnvelope {
   sessions: Array<RemoteSession>;
-  currentSessionId: string;
-  nextCursor: string | null;
+  total: number;
 }
+
+export type RemoteSessionInventory = unknown;
 
 export interface SessionRevocation {
+  status: "ok";
   revokedSessionId: string;
-  currentSessionRevoked: boolean;
 }
 
 export interface OtherSessionsRevoked {
+  status: "ok";
   revokedCount: number;
+}
+
+export interface SessionLogout {
+  status: "ok";
 }
 
 export interface HealthResponse {

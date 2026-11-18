@@ -2,7 +2,7 @@ import { render, screen, fireEvent, within, waitFor } from "@testing-library/rea
 import { SessionList } from "../session-list";
 import { revokeSession, revokeAllOtherSessions } from "@/lib/sessions/store";
 jest.mock("@/lib/sessions/store", () => ({ revokeSession: jest.fn(), revokeAllOtherSessions: jest.fn() }));
-const current = { id: "current", deviceLabel: "Linux - Firefox", createdAt: "2026-01-01T00:00:00.000Z", lastUsedAt: "2026-01-02T00:00:00.000Z", revokedAt: null, isCurrent: true };
+const current = { id: "current", deviceLabel: "Linux - Firefox", createdAt: "2026-01-01T00:00:00.000Z", lastUsedAt: "2026-01-02T00:00:00.000Z", expiresAt: "2099-01-01T00:00:00.000Z", revokedAt: null, isCurrent: true };
 const other = { ...current, id: "other", deviceLabel: "iOS - Safari", isCurrent: false };
 beforeEach(() => jest.clearAllMocks());
 it("requires confirmation and supports cancellation without sending", () => {

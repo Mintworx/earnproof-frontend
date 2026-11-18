@@ -1,47 +1,39 @@
 import { apiClient } from "@/lib/api/client";
 import { readStoredSession } from "@/lib/session";
-import { listSessionPage, listActiveSessions, revokeSession, revokeAllOtherSessions } from "../store";
+import { listActiveSessions, listRecentlyRevokedSessions, revokeSession, revokeAllOtherSessions } from "../store";
 jest.mock("@/lib/api/client", () => ({ apiClient: jest.fn(), bearer: (token: string) => ({ Authorization: `Bearer ${token}` }) }));
 jest.mock("@/lib/session", () => ({ readStoredSession: jest.fn() }));
 const api = jest.mocked(apiClient);
-const record = { id: "session-1", deviceLabel: "Linux - Firefox", createdAt: "2026-01-01T00:00:00.000Z", lastUsedAt: "2026-01-02T00:00:00.000Z", revokedAt: null };
-const page = { sessions: [record], currentSessionId: "session-1", nextCursor: null };
+const record = { id: "session-1", deviceLabel: "Linux - Firefox", createdAt: "2026-01-01T00:00:00.000Z", lastUsedAt: "2026-01-02T00:00:00.000Z", expiresAt: "2099-01-01T00:00:00.000Z", revokedAt: null, isCurrent: true };
 beforeEach(() => { jest.clearAllMocks(); localStorage.clear(); jest.mocked(readStoredSession).mockReturnValue({ token: "synthetic-auth", user: { id: "user-1", role: "WORKER", walletAddress: "synthetic-wallet", walletHash: "synthetic-hash" } }); });
-it("loads only authenticated server state and strips private metadata", async () => {
-  localStorage.setItem("earnproof.sessions.user-1", "forged-data");
-  api.mockResolvedValue({ ...page, sessions: [{ ...record, token: "private", userAgent: "private", ipAddress: "private", isCurrent: false }] });
-  expect((await listSessionPage("user-1")).sessions).toEqual([{ ...record, isCurrent: true }]);
+it("reads the actual envelope response and strips private metadata", async () => {
+  localStorage.setItem("earnproof.sessions.user-1", "forged-data"); api.mockResolvedValue({ sessions: [{ ...record, token: "private", userAgent: "private", deviceFingerprint: "private", ipAddress: "private" }], total: 1 });
+  expect(await listActiveSessions("user-1")).toEqual([record]); expect(api.mock.calls[0][0].path).toBe("/auth/sessions");
 });
-it("follows pagination and uses server current-session identity", async () => {
-  api.mockResolvedValueOnce({ ...page, nextCursor: "next-1" }).mockResolvedValueOnce({ ...page, sessions: [{ ...record, id: "session-2" }] });
-  const records = await listActiveSessions("user-1");
-  expect(records.map(item => item.isCurrent)).toEqual([true, false]);
-  expect(api.mock.calls[1][0].path).toContain("cursor=next-1");
+it("supports the backend array response with current/firstSeenAt/lastSeenAt", async () => {
+  api.mockResolvedValue([{ id: record.id, current: true, firstSeenAt: record.createdAt, lastSeenAt: record.lastUsedAt, expiresAt: record.expiresAt, revokedAt: null, deviceLabel: "Firefox on Linux on Desktop" }]); expect(await listActiveSessions("user-1")).toEqual([record]);
 });
-it("rejects cursor replay and malformed/private device labels", async () => {
-  api.mockResolvedValue({ ...page, nextCursor: "same" });
-  await expect(listSessionPage("user-1", "same")).rejects.toThrow("Repeated cursor");
-  api.mockResolvedValue({ ...page, sessions: [{ ...record, deviceLabel: "Mozilla/5.0 full user agent" }] });
-  await expect(listSessionPage("user-1")).rejects.toThrow();
+it("replaces arbitrary device labels with a coarse unknown label", async () => {
+  api.mockResolvedValue([{ ...record, deviceLabel: "Mozilla/5.0 private user agent or IP" }]); expect((await listActiveSessions("user-1"))[0].deviceLabel).toBe("Unknown device - Unknown browser");
 });
-it("rejects revoked entries in the active page and duplicate identities", async () => {
-  api.mockResolvedValue({ ...page, sessions: [{ ...record, revokedAt: "2026-01-02T00:00:00.000Z" }] });
-  await expect(listSessionPage("user-1")).rejects.toThrow();
-  api.mockResolvedValue({ ...page, sessions: [record, record] });
-  await expect(listSessionPage("user-1")).rejects.toThrow();
+it("rejects conflicting current identities, duplicates and incomplete envelopes", async () => {
+  for (const data of [[{ ...record, current: false }], [record, record], { sessions: [record], total: 2 }]) { api.mockResolvedValue(data); await expect(listActiveSessions("user-1")).rejects.toThrow(); }
+});
+it("filters expiry at the exact boundary and preserves server revocation history", async () => {
+  jest.spyOn(Date, "now").mockReturnValue(Date.parse(record.expiresAt)); api.mockResolvedValue([record]); expect(await listActiveSessions("user-1")).toEqual([]); jest.restoreAllMocks();
+  api.mockResolvedValue([{ ...record, revokedAt: record.lastUsedAt }]); expect(await listActiveSessions("user-1")).toEqual([]); expect(await listRecentlyRevokedSessions("user-1")).toHaveLength(1);
 });
 it("rejects cross-account calls before sending", async () => {
-  await expect(revokeSession("other-user", "session-1")).rejects.toThrow("Authentication");
-  expect(api).not.toHaveBeenCalled();
+  await expect(revokeSession("other-user", "session-1")).rejects.toThrow("Authentication"); expect(api).not.toHaveBeenCalled();
 });
-it("supports server-confirmed current revocation and propagates cancellation", async () => {
-  const controller = new AbortController();
-  api.mockResolvedValue({ revokedSessionId: "session-1", currentSessionRevoked: true });
-  expect((await revokeSession("user-1", "session-1", controller.signal)).currentSessionRevoked).toBe(true);
-  expect(api).toHaveBeenCalledWith(expect.objectContaining({ method: "DELETE", signal: controller.signal }));
+it("uses the actual remote revocation POST and forwards cancellation", async () => {
+  const controller = new AbortController(); api.mockResolvedValue({ status: "ok", revokedSessionId: record.id }); expect((await revokeSession("user-1", record.id, controller.signal)).currentSessionRevoked).toBe(false);
+  expect(api).toHaveBeenCalledWith(expect.objectContaining({ path: "/auth/sessions/session-1/revoke", method: "POST", signal: controller.signal }));
 });
-it("does not retry failed revocations or fabricate a count", async () => {
-  api.mockRejectedValue(new Error("Forbidden"));
-  await expect(revokeAllOtherSessions("user-1")).rejects.toThrow("Forbidden"); expect(api).toHaveBeenCalledTimes(1);
-  api.mockResolvedValue({ revokedCount: 2 }); expect(await revokeAllOtherSessions("user-1")).toBe(2);
+it("revokes this device via logout rather than the remote-session endpoint", async () => {
+  api.mockResolvedValue({ status: "ok" }); expect((await revokeSession("user-1", record.id, undefined, true)).currentSessionRevoked).toBe(true); expect(api.mock.calls[0][0].path).toBe("/auth/logout");
+});
+it("does not retry failed mutations and validates revoke-all-other responses", async () => {
+  api.mockRejectedValue(new Error("Forbidden")); await expect(revokeAllOtherSessions("user-1")).rejects.toThrow("Forbidden"); expect(api).toHaveBeenCalledTimes(1);
+  api.mockResolvedValue({ status: "ok", revokedCount: 2 }); expect(await revokeAllOtherSessions("user-1")).toBe(2); expect(api).toHaveBeenLastCalledWith(expect.objectContaining({ path: "/auth/sessions/revoke-all-other" }));
 });

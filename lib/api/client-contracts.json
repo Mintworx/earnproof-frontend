@@ -357,29 +357,31 @@
     "schema": "RemoteSession",
     "required": [
       "id",
-      "deviceLabel",
-      "createdAt",
-      "lastUsedAt",
-      "revokedAt"
+      "expiresAt"
     ],
     "routes": []
   },
   {
     "module": "lib/sessions/store.ts",
-    "schema": "RemoteSessionPage",
+    "schema": "SessionInventoryEnvelope",
     "required": [
       "sessions",
-      "currentSessionId",
-      "nextCursor"
+      "total"
     ],
+    "routes": []
+  },
+  {
+    "module": "lib/sessions/store.ts",
+    "schema": "RemoteSessionInventory",
+    "required": [],
     "routes": []
   },
   {
     "module": "lib/sessions/store.ts",
     "schema": "SessionRevocation",
     "required": [
-      "revokedSessionId",
-      "currentSessionRevoked"
+      "status",
+      "revokedSessionId"
     ],
     "routes": []
   },
@@ -387,7 +389,16 @@
     "module": "lib/sessions/store.ts",
     "schema": "OtherSessionsRevoked",
     "required": [
+      "status",
       "revokedCount"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/sessions/store.ts",
+    "schema": "SessionLogout",
+    "required": [
+      "status"
     ],
     "routes": []
   }

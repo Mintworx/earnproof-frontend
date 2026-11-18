@@ -45,7 +45,7 @@ export function SessionList({
     setError(null);
     try {
       const signal = lifetime.current!.signal;
-      const result = await revokeSession(userId, confirmRevoke.id, signal);
+      const result = await revokeSession(userId, confirmRevoke.id, signal, sessions.some(item => item.id === confirmRevoke.id && item.isCurrent));
       if (signal.aborted) return;
       if (result.currentSessionRevoked) { onCurrentSessionRevoked?.(); return; }
       onSessionsChanged(sessions.filter((s) => s.id !== confirmRevoke.id));
@@ -140,8 +140,8 @@ export function SessionList({
               <StatusBadge tone="success">This device</StatusBadge>
             )}
           </div>
-          <div className="text-slate-400">{formatDateTime(session.createdAt)}</div>
-          <div className="text-slate-400">{formatDateTime(session.lastUsedAt)}</div>
+          <div className="text-slate-400">{session.createdAt ? formatDateTime(session.createdAt) : "Unknown"}</div>
+          <div className="text-slate-400">{session.lastUsedAt ? formatDateTime(session.lastUsedAt) : "Unknown"}</div>
           <div>
             {!pending && !loading && (!session.isCurrent || onCurrentSessionRevoked) && (
               <button

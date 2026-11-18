@@ -1,29 +1,39 @@
 # Authenticated session inventory (v1)
 
-`GET /auth/sessions?state=active|revoked&cursor=...`,
-`DELETE /auth/sessions/{id}` and `POST /auth/sessions/revoke-others`
-are described in the versioned OpenAPI fixture. A backend deployment must
-implement them and authorize every operation against the bearer principal;
-client account checks are an additional guard, never server authorization.
-Unavailable endpoints and invalid responses fail closed. Legacy browser session
-inventories are ignored, never promoted into authenticated state.
+This client matches `earnproof-backend/src/auth/auth.controller.ts` and its
+session DTOs: GET `/auth/sessions`, POST `/auth/sessions/{sessionId}/revoke`,
+POST `/auth/sessions/revoke-all-other`, and POST `/auth/logout`.
+The backend currently contains two list handlers: an array with current,
+firstSeenAt and lastSeenAt, and an envelope with sessions/total and isCurrent,
+createdAt and lastUsedAt. Both are explicitly validated. Contradictory identity
+flags, duplicate IDs, invalid timestamps and incomplete envelopes fail closed.
+The backend should consolidate these handlers; no cursor endpoint is invented.
 
-The server identifies the current session through currentSessionId. The UI
-does not infer it from local user IDs or browser fingerprints. Response schemas
-strip extra fields. Device labels contain only a supported OS and browser family;
-raw tokens, full user agents, IPs and unknown labels never reach rendering.
-Pagination is cancellable, bounded and rejects malformed/repeated cursors.
-Refresh and focus start a new server inventory; read failures remove stale rows.
+The complete authoritative inventory is fetched once per refresh. The UI reveals
+ten rows per page from that snapshot, avoiding duplicate/missing rows caused by
+re-fetching a changing inventory between page clicks. Focus and explicit refresh
+discard the old snapshot. Expired (now >= expiresAt) and revoked sessions do not
+appear active. Legacy browser inventories are ignored. Unavailable endpoints,
+authorization failures and malformed responses remove stale rows and show an error.
 
-Revocation is server-confirmed and not automatically retried. The backend must
-return a consistent idempotent response to an already revoked ID belonging to
-the principal. Its currentSessionRevoked flag triggers in-memory session logout,
-cross-tab logout broadcast, query-cache clearing, protected storage cleanup,
-and document replacement to discard remaining React/module caches. Other-session
-revocation preserves the current session. Pending controls block duplicate sends.
-Auth changes remount the workspace and abort outstanding reads and mutations.
+Only allowlisted fields reach the UI. Raw tokens, full user agents, IPs and device
+fingerprints are discarded. Coarse known browser/OS labels are normalized; any
+arbitrary custom label becomes Unknown device/Unknown browser. Missing historical
+timestamps display Unknown, never invented dates. The server, not a client-derived
+user/session ID, identifies the current device.
 
-Focused Jest/RTL tests cover server scope, response privacy, pagination, replay,
-authorization, revocation and cancellation. Required full commands are
-`npm run lint`, `npm test -- --runInBand`, `npm run build` and
-`npm run test:contracts`. Use synthetic fixtures only.
+Remote revocation waits for the backend's status:ok and matching revokedSessionId.
+This backend rejects current-session remote revocation; that row instead invokes
+POST /auth/logout. Only a confirmed logout clears the in-memory token/profile,
+broadcasts logout, cancels pending requests, removes application-prefixed local
+and session storage (including legacy protected data), awaits CacheStorage cleanup,
+and replaces the document to discard React/query/module caches. Cache access may
+be disabled by the browser; authenticated requests already use no-store.
+
+Mutations are not automatically retried. Confirmation, pending guards and status/
+alert announcements prevent duplicate sends and optimistic claims of success.
+Auth changes remount the workspace and abort requests. Other-session revocation
+preserves the current session. Risk-history revocation uses the same server client.
+
+Validation commands: scoped Jest/RTL suites; `npm run lint`, `npm test -- --runInBand`,
+`npm run build`, `npm run test:contracts`. Fixtures are synthetic.
