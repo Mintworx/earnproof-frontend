@@ -18,6 +18,215 @@
     { "name": "webhooks" }
   ],
   "paths": {
+    "/proofs/{proofId}/share-links": {
+      "parameters": [
+        {
+          "name": "proofId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "listShareLinks",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative server response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareLinkPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "403": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "404": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "409": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "410": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          }
+        },
+        "description": "Server authorizes proof ownership. Never return or log raw share tokens except the one-time creation response."
+      },
+      "post": {
+        "operationId": "createShareLink",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative server response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareLinkCreated"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "403": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "404": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "409": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "410": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          }
+        },
+        "description": "Server authorizes proof ownership. Never return or log raw share tokens except the one-time creation response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShareLink"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/proofs/{proofId}/share-links/{id}": {
+      "parameters": [
+        {
+          "name": "proofId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "delete": {
+        "operationId": "revokeShareLink",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Revoked (idempotent)"
+          },
+          "401": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "403": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "404": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "409": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "410": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          }
+        },
+        "description": "Server authorizes proof ownership. Never return or log raw share tokens except the one-time creation response."
+      }
+    },
+    "/proofs/{proofId}/share-links/{id}/access-summary": {
+      "parameters": [
+        {
+          "name": "proofId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getShareAccessSummary",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative server response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareAccessSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "403": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "404": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "409": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          },
+          "410": {
+            "description": "Authentication, authorization, unsupported/missing resource, stale/replayed operation, or expired link. No local fallback."
+          }
+        },
+        "description": "Server authorizes proof ownership. Never return or log raw share tokens except the one-time creation response."
+      }
+    },
     "/health": {
       "get": {
         "tags": ["health"],
@@ -451,6 +660,176 @@
       }
     },
     "schemas": {
+    "ShareLink": {
+      "type": "object",
+      "required": [
+        "id",
+        "proofId",
+        "expiresInHours",
+        "expiresAt",
+        "discloseAmount",
+        "discloseSender",
+        "createdAt",
+        "revokedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "proofId": {
+          "type": "string"
+        },
+        "expiresInHours": {
+          "type": "number",
+          "minimum": 1
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "discloseAmount": {
+          "type": "boolean"
+        },
+        "discloseSender": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revokedAt": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        }
+      }
+    },
+    "ShareLinkPage": {
+      "type": "object",
+      "required": [
+        "links"
+      ],
+      "properties": {
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ShareLink"
+          }
+        }
+      }
+    },
+    "ShareLinkCreated": {
+      "type": "object",
+      "required": [
+        "token",
+        "record"
+      ],
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "record": {
+          "$ref": "#/components/schemas/ShareLink"
+        }
+      }
+    },
+    "CreateShareLink": {
+      "type": "object",
+      "required": [
+        "proofId",
+        "expiresInHours",
+        "discloseAmount",
+        "discloseSender"
+      ],
+      "properties": {
+        "proofId": {
+          "type": "string"
+        },
+        "expiresInHours": {
+          "type": "number",
+          "enum": [
+            1,
+            24,
+            72,
+            168
+          ]
+        },
+        "discloseAmount": {
+          "type": "boolean"
+        },
+        "discloseSender": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ShareAccessEvent": {
+      "type": "object",
+      "required": [
+        "id",
+        "shareLinkId",
+        "outcome",
+        "occurredAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "shareLinkId": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "ACCEPTED",
+            "EXPIRED",
+            "REJECTED"
+          ]
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ShareAccessSummary": {
+      "type": "object",
+      "required": [
+        "shareLinkId",
+        "totalAttempts",
+        "acceptedCount",
+        "expiredCount",
+        "rejectedCount",
+        "recent"
+      ],
+      "properties": {
+        "shareLinkId": {
+          "type": "string"
+        },
+        "totalAttempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "acceptedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expiredCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rejectedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recent": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/components/schemas/ShareAccessEvent"
+          }
+        }
+      }
+    },
       "HealthResponse": {
         "type": "object",
         "additionalProperties": false,

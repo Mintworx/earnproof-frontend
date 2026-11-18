@@ -8,6 +8,49 @@
 
 export const API_SPEC_SOURCE = "lib/api/openapi/earnproof-api.v1.json" as const;
 export const API_SPEC_VERSION = "1.0.0" as const;
+export interface ShareLink {
+  id: string;
+  proofId: string;
+  expiresInHours: number;
+  expiresAt: string;
+  discloseAmount: boolean;
+  discloseSender: boolean;
+  createdAt: string;
+  revokedAt: string | null;
+}
+
+export interface ShareLinkPage {
+  links: Array<ShareLink>;
+}
+
+export interface ShareLinkCreated {
+  token: string;
+  record: ShareLink;
+}
+
+export interface CreateShareLink {
+  proofId: string;
+  expiresInHours: 1 | 24 | 72 | 168;
+  discloseAmount: boolean;
+  discloseSender: boolean;
+}
+
+export interface ShareAccessEvent {
+  id: string;
+  shareLinkId: string;
+  outcome: "ACCEPTED" | "EXPIRED" | "REJECTED";
+  occurredAt: string;
+}
+
+export interface ShareAccessSummary {
+  shareLinkId: string;
+  totalAttempts: number;
+  acceptedCount: number;
+  expiredCount: number;
+  rejectedCount: number;
+  recent: Array<ShareAccessEvent>;
+}
+
 export interface HealthResponse {
   status: string;
   service: string;
