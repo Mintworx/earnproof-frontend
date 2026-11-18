@@ -20,6 +20,7 @@ export function CreateTrustedSourceForm({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsRefresh, setNeedsRefresh] = useState(false);
   const lifetime = useRef<AbortController | null>(null);
   const busy = useRef(false);
   useEffect(() => { const controller = new AbortController(); lifetime.current = controller; return () => controller.abort(); }, [userId]);
@@ -33,11 +34,12 @@ export function CreateTrustedSourceForm({
 
   const onSubmit = useCallback(
     async (data: CreateTrustedSourceInput) => {
-      if (busy.current) return;
+      if (busy.current || needsRefresh) return;
       busy.current = true;
       setIsSubmitting(true);
       setError(null);
 
+      let submitted = false;
       try {
         const validated = createTrustedSourceSchema.parse(data);
 
@@ -51,18 +53,20 @@ export function CreateTrustedSourceForm({
         }
 
         const signal = lifetime.current!.signal;
+        submitted = true;
         const record = await createTrustedSource(userId, validated, signal);
         if (signal.aborted) return;
         onTrustedSourceCreated(record);
         reset();
       } catch {
+        setNeedsRefresh(submitted);
         setError("Creation was not confirmed. Refresh the server list before retrying.");
       } finally {
         busy.current = false;
         setIsSubmitting(false);
       }
     },
-    [userId, issuers, onTrustedSourceCreated, reset],
+    [userId, issuers, onTrustedSourceCreated, reset, needsRefresh],
   );
 
   return (
@@ -135,7 +139,7 @@ export function CreateTrustedSourceForm({
         <div className="sm:col-span-2">
           <button
             type="submit"
-            disabled={isSubmitting || issuers.length === 0}
+            disabled={isSubmitting || needsRefresh || issuers.length === 0}
             className="h-10 rounded-md bg-cyan-300 px-4 text-xs font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? "Adding..." : "Add trusted source"}
