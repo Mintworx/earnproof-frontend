@@ -18,6 +18,141 @@
     { "name": "webhooks" }
   ],
   "paths": {
+    "/auth/sessions": {
+      "get": {
+        "operationId": "listSessions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Authenticated principal owns all returned or revoked sessions. Never expose tokens, IPs or raw user agents. Device labels use the documented coarse vocabulary. Revocation is idempotent and mutations are not automatically retried.",
+        "responses": {
+          "200": {
+            "description": "Authoritative session response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteSessionPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Session missing or endpoint unsupported"
+          },
+          "409": {
+            "description": "Stale/replayed state"
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "revoked"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/auth/sessions/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "delete": {
+        "operationId": "revokeSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Authenticated principal owns all returned or revoked sessions. Never expose tokens, IPs or raw user agents. Device labels use the documented coarse vocabulary. Revocation is idempotent and mutations are not automatically retried.",
+        "responses": {
+          "200": {
+            "description": "Authoritative session response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRevocation"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Session missing or endpoint unsupported"
+          },
+          "409": {
+            "description": "Stale/replayed state"
+          }
+        }
+      }
+    },
+    "/auth/sessions/revoke-others": {
+      "post": {
+        "operationId": "revokeOtherSessions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Authenticated principal owns all returned or revoked sessions. Never expose tokens, IPs or raw user agents. Device labels use the documented coarse vocabulary. Revocation is idempotent and mutations are not automatically retried.",
+        "responses": {
+          "200": {
+            "description": "Authoritative session response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtherSessionsRevoked"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Session missing or endpoint unsupported"
+          },
+          "409": {
+            "description": "Stale/replayed state"
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": ["health"],
@@ -451,6 +586,88 @@
       }
     },
     "schemas": {
+    "RemoteSession": {
+      "type": "object",
+      "required": [
+        "id",
+        "deviceLabel",
+        "createdAt",
+        "lastUsedAt",
+        "revokedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "deviceLabel": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastUsedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revokedAt": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        }
+      }
+    },
+    "RemoteSessionPage": {
+      "type": "object",
+      "required": [
+        "sessions",
+        "currentSessionId",
+        "nextCursor"
+      ],
+      "properties": {
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/RemoteSession"
+          },
+          "maxItems": 100
+        },
+        "currentSessionId": {
+          "type": "string"
+        },
+        "nextCursor": {
+          "type": "string",
+          "nullable": true
+        }
+      }
+    },
+    "SessionRevocation": {
+      "type": "object",
+      "required": [
+        "revokedSessionId",
+        "currentSessionRevoked"
+      ],
+      "properties": {
+        "revokedSessionId": {
+          "type": "string"
+        },
+        "currentSessionRevoked": {
+          "type": "boolean"
+        }
+      }
+    },
+    "OtherSessionsRevoked": {
+      "type": "object",
+      "required": [
+        "revokedCount"
+      ],
+      "properties": {
+        "revokedCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
       "HealthResponse": {
         "type": "object",
         "additionalProperties": false,

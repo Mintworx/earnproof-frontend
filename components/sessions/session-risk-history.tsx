@@ -59,6 +59,7 @@ export function SessionRiskHistory({
     null,
   );
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const pendingAction = useRef(false);
 
   const resolvedState = useMemo(() => {
     try {
@@ -146,12 +147,13 @@ export function SessionRiskHistory({
     });
   };
 
-  const handleConfirmRemoteSignOut = () => {
-    if (!confirmTarget) return;
+  const handleConfirmRemoteSignOut = async () => {
+    if (!confirmTarget || pendingAction.current) return;
+    pendingAction.current = true;
     setActionError(null);
 
     try {
-      const updated = signOutSessionFromRiskEvent({
+      const updated = await signOutSessionFromRiskEvent({
         userId,
         organizationId,
         sessionId: confirmTarget.sessionId,
@@ -166,6 +168,7 @@ export function SessionRiskHistory({
         "Could not sign out the affected session. It may have already been revoked.",
       );
     } finally {
+      pendingAction.current = false;
       setConfirmTarget(null);
       triggerRef.current?.focus();
     }

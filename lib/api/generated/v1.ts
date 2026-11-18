@@ -8,6 +8,29 @@
 
 export const API_SPEC_SOURCE = "lib/api/openapi/earnproof-api.v1.json" as const;
 export const API_SPEC_VERSION = "1.0.0" as const;
+export interface RemoteSession {
+  id: string;
+  deviceLabel: string;
+  createdAt: string;
+  lastUsedAt: string;
+  revokedAt: string | null;
+}
+
+export interface RemoteSessionPage {
+  sessions: Array<RemoteSession>;
+  currentSessionId: string;
+  nextCursor: string | null;
+}
+
+export interface SessionRevocation {
+  revokedSessionId: string;
+  currentSessionRevoked: boolean;
+}
+
+export interface OtherSessionsRevoked {
+  revokedCount: number;
+}
+
 export interface HealthResponse {
   status: string;
   service: string;
