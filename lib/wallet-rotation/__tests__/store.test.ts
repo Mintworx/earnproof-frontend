@@ -14,6 +14,12 @@ it("creates an authenticated intent with an idempotency key without local comple
   api.mockResolvedValue(makeIntent()); expect((await createRotationIntent(CURRENT, REPLACEMENT, "intent-key")).status).toBe("PENDING");
   expect(api).toHaveBeenCalledWith(expect.objectContaining({ method: "POST", headers: expect.objectContaining({ "Idempotency-Key": "intent-key" }) })); expect(localStorage.length).toBe(0);
 });
+it("fails closed when recovery endpoints are unavailable and rejects incomplete completion records", async () => {
+  api.mockRejectedValueOnce(new Error("404 unsupported"));
+  await expect(getRotationIntent(CURRENT)).rejects.toThrow("404");
+  api.mockResolvedValue({ intent: makeIntent({ status: "COMPLETED", completedAt: "2026-11-18T00:00:00.000Z" }) });
+  await expect(getRotationIntent(CURRENT)).rejects.toThrow("not confirmed");
+});
 it("rejects wrong-wallet authentication and malformed replacement addresses before sending", async () => {
   await expect(createRotationIntent(CURRENT, "invalid", "key")).rejects.toThrow(); await expect(getRotationIntent(REPLACEMENT)).rejects.toThrow("Authenticate"); expect(api).not.toHaveBeenCalled();
 });

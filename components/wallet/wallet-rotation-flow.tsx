@@ -2,8 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { connectFreighterWallet, signFreighterMessage } from "@/lib/wallet/freighter-sign";
 import { getRotationIntent, createRotationIntent, createRotationChallenge, submitRotationProof, completeWalletRotation, cancelRotationIntent, areBothChallengesValid, type WalletRotationIntent, type WalletRole } from "@/lib/wallet-rotation/store";
-import { clearStoredSession } from "@/lib/session";
-import { clearAllStorage } from "@/lib/storage";
+import { clearRotatedAccount } from "@/lib/wallet-rotation/cleanup";
 
 export function WalletRotationFlow({ currentWalletAddress, onRotationCompleted }: { currentWalletAddress: string; onRotationCompleted: (newAddress: string) => void }) {
   const [intent, setIntent] = useState<WalletRotationIntent | null>(null);
@@ -17,8 +16,8 @@ export function WalletRotationFlow({ currentWalletAddress, onRotationCompleted }
   const lifetime = useRef<AbortController | null>(null);
   const reading = useRef<AbortController | null>(null);
   const creation = useRef<{ address: string; key: string } | null>(null);
-  const finish = useCallback((confirmed: WalletRotationIntent) => {
-    clearStoredSession("wallet_changed"); clearAllStorage(); onRotationCompleted(confirmed.newAddress);
+  const finish = useCallback(async (confirmed: WalletRotationIntent) => {
+    await clearRotatedAccount(); onRotationCompleted(confirmed.newAddress);
   }, [onRotationCompleted]);
   const refresh = useCallback(async () => {
     if (busy.current) return;
@@ -27,7 +26,7 @@ export function WalletRotationFlow({ currentWalletAddress, onRotationCompleted }
     try {
       const recovered = await getRotationIntent(currentWalletAddress, c.signal);
       if (c.signal.aborted) return;
-      if (recovered?.status === "COMPLETED") { finish(recovered); return; }
+      if (recovered?.status === "COMPLETED") { await finish(recovered); return; }
       setIntent(recovered); setNeedsRefresh(false);
     } catch { if (!c.signal.aborted) { setNeedsRefresh(true); setError("Server recovery unavailable. Refresh before continuing."); } }
     finally { if (!c.signal.aborted) setLoading(false); }
@@ -88,7 +87,7 @@ export function WalletRotationFlow({ currentWalletAddress, onRotationCompleted }
       <button type="button" disabled={pending || needsRefresh || expired || Boolean(intent.currentProof)} onClick={() => void mutate(signal => prove("current", signal))}>{intent.currentProof ? "Current wallet verified" : "Verify current wallet"}</button>
       <button type="button" disabled={pending || needsRefresh || expired || !intent.currentProof || Boolean(intent.replacementProof)} onClick={() => void mutate(signal => prove("replacement", signal))}>{intent.replacementProof ? "Replacement wallet verified" : "Verify replacement wallet"}</button>
       <p>Confirming rotation will end your current session. Reconnect with the replacement wallet after completion.</p>
-      <button type="button" disabled={pending || needsRefresh || expired || intent.status !== "READY" || !proofsValid} onClick={() => void mutate(async signal => { const result = await completeWalletRotation(intent, signal); if (!signal.aborted) finish(result); })}>Confirm rotation</button>
+      <button type="button" disabled={pending || needsRefresh || expired || intent.status !== "READY" || !proofsValid} onClick={() => void mutate(async signal => { const result = await completeWalletRotation(intent, signal); if (!signal.aborted) await finish(result); })}>Confirm rotation</button>
       <button type="button" disabled={pending || needsRefresh} onClick={() => void mutate(async signal => { await cancelRotationIntent(intent, signal); if (!signal.aborted) setIntent(null); })}>Cancel rotation</button>
     </div>}
   </section>;

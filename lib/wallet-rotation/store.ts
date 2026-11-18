@@ -35,7 +35,7 @@ function checked(value: unknown, previousAddress: string): WalletRotationIntent 
     const proof = role === "current" ? intent.currentProof : intent.replacementProof;
     if (proof && (proof.intentId !== intent.id || proof.network !== intent.network || proof.role !== role || proof.walletAddress !== (role === "current" ? intent.previousAddress : intent.newAddress) || Date.parse(proof.expiresAt) > Date.parse(intent.expiresAt))) throw new Error("Rotation proof scope mismatch.");
   }
-  if (intent.status === "COMPLETED" && !intent.completedAt) throw new Error("Completion was not confirmed.");
+  if (intent.status === "COMPLETED" && (!intent.completedAt || !intent.currentProof || !intent.replacementProof)) throw new Error("Completion was not confirmed.");
   if (intent.status === "READY" && (!intent.currentProof || !intent.replacementProof)) throw new Error("Rotation proofs are incomplete.");
   return intent;
 }
@@ -48,7 +48,7 @@ function sameIntent(value: unknown, intent: WalletRotationIntent) {
   return result;
 }
 export async function getRotationIntent(previousAddress: string, signal?: AbortSignal): Promise<WalletRotationIntent | null> {
-  const response = validateApiResponse(z.object({ intent: rotationIntentSchema.nullable() }), await apiClient<unknown>({ path: "/wallet-rotations/current", headers: headers(previousAddress), signal }));
+  const response = validateApiResponse(z.object({ intent: rotationIntentSchema.nullable() }), await apiClient<unknown>({ path: "/wallet-rotations/current", headers: headers(previousAddress), signal, skipCoalescing: true }));
   return response.intent ? checked(response.intent, previousAddress) : null;
 }
 export async function createRotationIntent(previousAddress: string, newAddress: string, idempotencyKey: string, signal?: AbortSignal): Promise<WalletRotationIntent> {

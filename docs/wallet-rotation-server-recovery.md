@@ -1,5 +1,16 @@
 # Server wallet rotation (API v1)
 
+This PR changes only the frontend. The contract below is the required recovery
+interface, not an existing backend deployment. Backend `develop` inspected
+November 18 provides `POST /auth/wallet-rotation` and
+`POST /auth/wallet-rotation/:rotationId/complete`, with newline-delimited signing
+messages, but no intent recovery/cancellation or durable dual-proof state API.
+The client deliberately does not reinterpret that legacy protocol as this new
+contract or submit general login challenges as rotation proofs. Until matching
+endpoints are supplied, recovery failure blocks all mutations and never claims
+reassignment. Synthetic tests establish frontend behavior only; deployed
+end-to-end compatibility remains a backend dependency.
+
 The versioned OpenAPI fixture defines intent creation, current-intent recovery,
 challenge issuance, proof submission, completion and cancellation under
 `/wallet-rotations`. These backend routes must be deployed; the frontend does not
