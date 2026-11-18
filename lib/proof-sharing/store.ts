@@ -27,7 +27,7 @@ function recordForProof(record: ShareLinkRecord, proofId: string) {
 
 export async function listShareLinks(userId: string, proofId: string, signal?: AbortSignal): Promise<ShareLinkWithStatus[]> {
   const page = validateApiResponse(z.object({ links: z.array(shareLinkSchema) }), await apiClient<unknown>({
-    path: root(proofId), headers: headers(userId), signal,
+    path: root(proofId), headers: headers(userId), signal, skipCoalescing: true,
   }));
   return page.links.map((item) => {
     const record = recordForProof(item, proofId);
@@ -42,6 +42,7 @@ export async function createShareLink(userId: string, input: z.infer<typeof crea
     headers: { ...headers(userId), "Idempotency-Key": idempotencyKey }, body: JSON.stringify(body),
   }));
   recordForProof(result.record, body.proofId);
+  if (result.record.discloseAmount !== body.discloseAmount || result.record.discloseSender !== body.discloseSender || result.record.expiresInHours !== body.expiresInHours || Date.parse(result.record.expiresAt) > Date.parse(result.record.createdAt) + body.expiresInHours * 3_600_000) throw new Error("Created link policy does not match the requested disclosure.");
   if (computeShareLinkStatus(result.record.expiresAt, result.record.revokedAt) !== "ACTIVE") throw new Error("Created link is not usable.");
   // Only the immediate caller receives the token; no cache, storage or telemetry.
   return result;

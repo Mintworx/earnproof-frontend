@@ -33,3 +33,15 @@ status/alert roles and controls have accessible labels and pending-state guards.
 Validation: focused Jest/React Testing Library suites for the server store and
 panel; `npm run lint`, `npm test -- --runInBand`, `npm run build`, and
 `npm run test:contracts`. All fixtures are synthetic.
+
+# Frontend integration status
+
+This PR is frontend-only. The share-link lifecycle routes in its versioned
+fixture define the required integration contract; they are not evidence of a
+deployed backend. The backend `develop` branch inspected on November 18 exposes
+`POST /proofs/:id/sharing-token` and `GET /proofs/sharing-access`, but lacks
+authoritative per-link listing/revocation and the disclosure policy contract.
+Those legacy routes cannot safely emulate the required lifecycle. Until the
+matching API is available, the UI reports an error and never falls back to local
+links or reports successful revocation. Tests use synthetic API fixtures and
+validate frontend behavior; end-to-end deployment remains a backend dependency.

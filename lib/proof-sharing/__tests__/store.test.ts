@@ -29,6 +29,13 @@ it("does not interpret a replay without a token as a fresh creation", async () =
   api.mockResolvedValue({ record });
   await expect(createShareLink("user-1", input)).rejects.toThrow();
 });
+it("rejects a broader disclosure or a longer expiry than the user approved", async () => {
+  for (const patch of [{ discloseAmount: true }, { discloseSender: true }, { expiresInHours: 168 }, { expiresAt: "2099-01-03T00:00:00.000Z" }]) {
+    api.mockResolvedValue({ token: "synthetic-private-token", record: { ...record, ...patch } });
+    await expect(createShareLink("user-1", input)).rejects.toThrow("policy");
+  }
+  expect(localStorage.length).toBe(0);
+});
 it("validates policy before sending and rejects wrong proof scopes", async () => {
   await expect(createShareLink("user-1", { ...input, expiresInHours: -1 })).rejects.toThrow();
   expect(api).not.toHaveBeenCalled();
