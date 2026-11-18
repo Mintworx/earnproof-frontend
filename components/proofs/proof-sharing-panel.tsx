@@ -43,7 +43,9 @@ function SharingWorkspace({ proofId, userId, authenticated }: { proofId: string;
 
   useEffect(() => {
     const controller = new AbortController(); lifecycle.current = controller;
-    if (authenticated) void refresh();
+    void Promise.resolve().then(() => {
+      if (authenticated && !controller.signal.aborted) void refresh();
+    });
     const onFocus = () => { if (!busy.current && authenticated) void refresh(); };
     window.addEventListener("focus", onFocus);
     // Expiry is inclusive and is re-evaluated without requiring a reload.
