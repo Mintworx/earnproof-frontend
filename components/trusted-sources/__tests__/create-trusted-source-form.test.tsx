@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CreateTrustedSourceForm } from "../create-trusted-source-form";
+jest.mock("@/lib/trusted-sources/store", () => ({ createTrustedSource: jest.fn(async (_userId: string, input: { name: string; issuerId: string }) => ({ ...input, id: "source-1", organizationId: "org-1", network: "testnet", status: "ACTIVE", version: 1, createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-02T00:00:00.000Z" })) }));
 
 const USER_ID = "user-1";
 const ISSUERS = [

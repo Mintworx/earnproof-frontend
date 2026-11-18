@@ -18,6 +18,364 @@
     { "name": "webhooks" }
   ],
   "paths": {
+    "/organizations/{organizationId}/trusted-sources": {
+      "parameters": [
+        {
+          "name": "organizationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "listTrustedSources",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server validates tenant membership, role, issuer linkage and Stellar network. Mutations are not automatically retried. If-Match requires an exact version; stale writes return 409/412. Disabled/deleted sources cannot establish trust.",
+        "responses": {
+          "200": {
+            "description": "Authoritative source response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedSourcePage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Tenant/role denied"
+          },
+          "404": {
+            "description": "Missing or unsupported"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "412": {
+            "description": "Version mismatch"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createTrustedSource",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server validates tenant membership, role, issuer linkage and Stellar network. Mutations are not automatically retried. If-Match requires an exact version; stale writes return 409/412. Disabled/deleted sources cannot establish trust.",
+        "responses": {
+          "200": {
+            "description": "Authoritative source response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedSource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Tenant/role denied"
+          },
+          "404": {
+            "description": "Missing or unsupported"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "412": {
+            "description": "Version mismatch"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrustedSourceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/organizations/{organizationId}/trusted-sources/{id}": {
+      "parameters": [
+        {
+          "name": "organizationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "patch": {
+        "operationId": "updateTrustedSource",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server validates tenant membership, role, issuer linkage and Stellar network. Mutations are not automatically retried. If-Match requires an exact version; stale writes return 409/412. Disabled/deleted sources cannot establish trust.",
+        "responses": {
+          "200": {
+            "description": "Authoritative source response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedSource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Tenant/role denied"
+          },
+          "404": {
+            "description": "Missing or unsupported"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "412": {
+            "description": "Version mismatch"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrustedSourcePatch"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/organizations/{organizationId}/trusted-sources/{id}/disable": {
+      "parameters": [
+        {
+          "name": "organizationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "disableTrustedSource",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server validates tenant membership, role, issuer linkage and Stellar network. Mutations are not automatically retried. If-Match requires an exact version; stale writes return 409/412. Disabled/deleted sources cannot establish trust.",
+        "responses": {
+          "200": {
+            "description": "Authoritative source response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedSource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Tenant/role denied"
+          },
+          "404": {
+            "description": "Missing or unsupported"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "412": {
+            "description": "Version mismatch"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/organizations/{organizationId}/trusted-sources/{id}/test": {
+      "parameters": [
+        {
+          "name": "organizationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "testTrustedSource",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server validates tenant membership, role, issuer linkage and Stellar network. Mutations are not automatically retried. If-Match requires an exact version; stale writes return 409/412. Disabled/deleted sources cannot establish trust.",
+        "responses": {
+          "200": {
+            "description": "Authoritative source response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedSourceTest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Tenant/role denied"
+          },
+          "404": {
+            "description": "Missing or unsupported"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "412": {
+            "description": "Version mismatch"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/organizations/{organizationId}/trusted-sources/{id}/history": {
+      "parameters": [
+        {
+          "name": "organizationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "historyTrustedSource",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server validates tenant membership, role, issuer linkage and Stellar network. Mutations are not automatically retried. If-Match requires an exact version; stale writes return 409/412. Disabled/deleted sources cannot establish trust.",
+        "responses": {
+          "200": {
+            "description": "Authoritative source response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedSourceHistory"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Tenant/role denied"
+          },
+          "404": {
+            "description": "Missing or unsupported"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "412": {
+            "description": "Version mismatch"
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": ["health"],
@@ -451,6 +809,186 @@
       }
     },
     "schemas": {
+    "TrustedSource": {
+      "type": "object",
+      "required": [
+        "id",
+        "organizationId",
+        "name",
+        "issuerId",
+        "network",
+        "status",
+        "version",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "issuerId": {
+          "type": "string"
+        },
+        "network": {
+          "type": "string",
+          "enum": [
+            "testnet",
+            "public"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ACTIVE",
+            "DISABLED",
+            "DELETED"
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TrustedSourcePage": {
+      "type": "object",
+      "required": [
+        "sources"
+      ],
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/TrustedSource"
+          }
+        }
+      }
+    },
+    "TrustedSourceInput": {
+      "type": "object",
+      "required": [
+        "name",
+        "issuerId",
+        "network"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "issuerId": {
+          "type": "string"
+        },
+        "network": {
+          "type": "string",
+          "enum": [
+            "testnet",
+            "public"
+          ]
+        }
+      }
+    },
+    "TrustedSourcePatch": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "issuerId": {
+          "type": "string"
+        }
+      }
+    },
+    "TrustedSourceTest": {
+      "type": "object",
+      "required": [
+        "source",
+        "eligible",
+        "testedAt"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/components/schemas/TrustedSource"
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "testedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TrustedSourceHistoryEvent": {
+      "type": "object",
+      "required": [
+        "id",
+        "action",
+        "version",
+        "occurredAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "CREATE",
+            "UPDATE",
+            "DISABLE",
+            "TEST"
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TrustedSourceHistory": {
+      "type": "object",
+      "required": [
+        "organizationId",
+        "sourceId",
+        "events"
+      ],
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/TrustedSourceHistoryEvent"
+          }
+        }
+      }
+    },
       "HealthResponse": {
         "type": "object",
         "additionalProperties": false,

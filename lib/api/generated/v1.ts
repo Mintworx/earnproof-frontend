@@ -8,6 +8,52 @@
 
 export const API_SPEC_SOURCE = "lib/api/openapi/earnproof-api.v1.json" as const;
 export const API_SPEC_VERSION = "1.0.0" as const;
+export interface TrustedSource {
+  id: string;
+  organizationId: string;
+  name: string;
+  issuerId: string;
+  network: "testnet" | "public";
+  status: "ACTIVE" | "DISABLED" | "DELETED";
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrustedSourcePage {
+  sources: Array<TrustedSource>;
+}
+
+export interface TrustedSourceInput {
+  name: string;
+  issuerId: string;
+  network: "testnet" | "public";
+}
+
+export interface TrustedSourcePatch {
+  name?: string;
+  issuerId?: string;
+}
+
+export interface TrustedSourceTest {
+  source: TrustedSource;
+  eligible: boolean;
+  testedAt: string;
+}
+
+export interface TrustedSourceHistoryEvent {
+  id: string;
+  action: "CREATE" | "UPDATE" | "DISABLE" | "TEST";
+  version: number;
+  occurredAt: string;
+}
+
+export interface TrustedSourceHistory {
+  organizationId: string;
+  sourceId: string;
+  events: Array<TrustedSourceHistoryEvent>;
+}
+
 export interface HealthResponse {
   status: string;
   service: string;
