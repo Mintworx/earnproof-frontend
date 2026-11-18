@@ -364,7 +364,7 @@ export function AccountRotationWizard({
       setState((s) => ({
         ...s,
         stepError:
-          "The ownership challenge has expired. Click "Request challenge" to get a new one.",
+          'The ownership challenge has expired. Click "Request challenge" to get a new one.',
         phase: "idle",
         challenge: null,
       }));

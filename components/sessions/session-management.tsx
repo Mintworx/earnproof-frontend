@@ -11,8 +11,6 @@ import {
 import { SessionList } from "./session-list";
 import { SessionRiskHistory } from "./session-risk-history";
 
-const SESSION_KEY = "earnproof.session";
-import { listActiveSessions, type SessionRecord } from "@/lib/sessions/store";
 import { readStoredSession } from "@/lib/session";
 
 type SessionData = {
@@ -25,24 +23,6 @@ type SessionData = {
   lastVerifiedAtMs?: number | null;
 };
 
-function readStoredSession(): SessionData | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const stored = window.localStorage.getItem(SESSION_KEY);
-  if (!stored) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(stored) as SessionData;
-  } catch {
-    window.localStorage.removeItem(SESSION_KEY);
-    return null;
-  }
-}
-
 export interface SessionManagementProps {
   organizationId?: string;
   viewerOrganizationId?: string;
@@ -54,7 +34,6 @@ export function SessionManagement({
   viewerOrganizationId: propViewerOrgId,
   lastVerifiedAtMs: propLastVerifiedAtMs,
 }: SessionManagementProps = {}) {
-export function SessionManagement() {
   const [session] = useState<SessionData | null>(() => readStoredSession());
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [revokedSessions, setRevokedSessions] = useState<SessionRecord[]>([]);
