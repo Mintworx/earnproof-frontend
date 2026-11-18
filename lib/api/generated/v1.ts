@@ -8,6 +8,59 @@
 
 export const API_SPEC_SOURCE = "lib/api/openapi/earnproof-api.v1.json" as const;
 export const API_SPEC_VERSION = "1.0.0" as const;
+export interface WalletRotationProof {
+  intentId: string;
+  network: "testnet" | "public";
+  walletAddress: string;
+  role: "current" | "replacement";
+  challengeId: string;
+  expiresAt: string;
+  verified: true;
+}
+
+export interface WalletRotationIntent {
+  id: string;
+  previousAddress: string;
+  newAddress: string;
+  network: "testnet" | "public";
+  status: "PENDING" | "READY" | "COMPLETED" | "CANCELLED" | "EXPIRED";
+  version: number;
+  expiresAt: string;
+  completedAt: string | null;
+  currentProof: WalletRotationProof | null;
+  replacementProof: WalletRotationProof | null;
+}
+
+export interface WalletRotationRecovery {
+  intent: WalletRotationIntent | null;
+}
+
+export interface WalletRotationCreate {
+  newAddress: string;
+  network: "testnet" | "public";
+}
+
+export interface WalletRotationChallengeRequest {
+  role: "current" | "replacement";
+}
+
+export interface WalletRotationChallenge {
+  id: string;
+  intentId: string;
+  network: "testnet" | "public";
+  walletAddress: string;
+  role: "current" | "replacement";
+  message: string;
+  expiresAt: string;
+}
+
+export interface WalletRotationProofRequest {
+  role: "current" | "replacement";
+  challengeId: string;
+  signature: string;
+  network: "testnet" | "public";
+}
+
 export interface HealthResponse {
   status: string;
   service: string;
