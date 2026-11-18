@@ -28,6 +28,17 @@ it("removes stale active controls when server refresh fails", async () => {
   await screen.findByRole("alert");
   expect(screen.queryByRole("button", { name: /^Revoke$/ })).not.toBeInTheDocument();
 });
+it("discards a revealed token when a refresh observes remote revocation", async () => {
+  jest.mocked(createShareLink).mockResolvedValue({ record, token: "synthetic-once" });
+  render(<ProofSharingPanel userId="user-1" proofId="proof-1" />);
+  await waitFor(() => expect(screen.getByRole("button", { name: /Create share link/i })).toBeEnabled());
+  list.mockResolvedValue([{ ...record, status: "ACTIVE" }]);
+  fireEvent.click(screen.getByRole("button", { name: /Create share link/i }));
+  await screen.findByLabelText("Share token");
+  list.mockResolvedValue([{ ...record, status: "REVOKED", revokedAt: "2099-01-01T00:00:00.000Z" }]);
+  fireEvent.click(screen.getByRole("button", { name: /Refresh share links/i }));
+  await screen.findByText("REVOKED"); expect(screen.queryByLabelText("Share token")).not.toBeInTheDocument();
+});
 it("awaits server revocation before reading the list again", async () => {
   list.mockResolvedValue([{ ...record, status: "ACTIVE" }]);
   jest.mocked(revokeShareLink).mockResolvedValue();

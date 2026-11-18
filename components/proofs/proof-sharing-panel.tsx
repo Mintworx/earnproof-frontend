@@ -30,10 +30,10 @@ function SharingWorkspace({ proofId, userId, authenticated }: { proofId: string;
     reading.current?.abort();
     const request = new AbortController();
     reading.current = request;
-    setLinks([]); setLoading(true);
+    setLinks([]); setRevealedToken(null); setLoading(true);
     try {
       const next = await listShareLinks(userId, proofId, request.signal);
-      if (!request.signal.aborted) { setLinks(next); setError(null); }
+      if (!request.signal.aborted) { setLinks(next); setError(null); return next; }
     } catch {
       if (!request.signal.aborted) setError("Could not load server share links. Refresh to retry.");
     } finally {
@@ -63,8 +63,9 @@ function SharingWorkspace({ proofId, userId, authenticated }: { proofId: string;
     try {
       const created = await createShareLink(userId, { proofId, ...input }, signal, intent.current!.key);
       if (signal.aborted) return;
-      intent.current = null; setRevealedToken(created);
-      await refresh();
+      intent.current = null;
+      const confirmed = await refresh();
+      if (!signal.aborted && confirmed?.some(link => link.id === created.record.id && link.status === "ACTIVE")) setRevealedToken(created);
     } catch {
       if (!signal.aborted) { setLinks([]); setError("Creation was not confirmed. Refresh the server list before retrying; a retry of the same policy uses the same request key."); }
     } finally {
