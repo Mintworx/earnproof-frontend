@@ -401,5 +401,74 @@
       "status"
     ],
     "routes": []
+  },
+  {
+    "module": "lib/proof-sharing/store.ts",
+    "schema": "ShareLink",
+    "required": [
+      "id",
+      "proofId",
+      "expiresInHours",
+      "expiresAt",
+      "discloseAmount",
+      "discloseSender",
+      "createdAt",
+      "revokedAt"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/proof-sharing/store.ts",
+    "schema": "ShareLinkPage",
+    "required": [
+      "links"
+    ],
+    "routes": [
+      "GET /proofs/{proofId}/share-links"
+    ]
+  },
+  {
+    "module": "lib/proof-sharing/store.ts",
+    "schema": "ShareLinkCreated",
+    "required": [
+      "token",
+      "record"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/proof-sharing/store.ts",
+    "schema": "CreateShareLink",
+    "required": [
+      "proofId",
+      "expiresInHours",
+      "discloseAmount",
+      "discloseSender"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/proof-sharing/store.ts",
+    "schema": "ShareAccessEvent",
+    "required": [
+      "id",
+      "shareLinkId",
+      "outcome",
+      "occurredAt"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/proof-sharing/store.ts",
+    "schema": "ShareAccessSummary",
+    "required": [
+      "shareLinkId",
+      "totalAttempts",
+      "acceptedCount",
+      "expiredCount",
+      "rejectedCount",
+      "recent"
+    ],
+    "routes": []
   }
 ]
