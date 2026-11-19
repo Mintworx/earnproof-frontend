@@ -1728,6 +1728,354 @@
           }
         }
       }
+    },
+    "/wallet-rotations": {
+      "post": {
+        "operationId": "createWalletRotation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server authorizes the current account, binds both single-use wallet challenges to the same intent, role and network, validates signatures, enforces expiry and version, checks replacement-account conflicts, and atomically completes reassignment/session invalidation. Challenge issuance does not change the intent version. See docs/wallet-rotation-server-recovery.md for canonical signing text. Never log signatures or wallet material.",
+        "responses": {
+          "200": {
+            "description": "Authoritative server intent state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletRotationIntent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Account denied"
+          },
+          "404": {
+            "description": "Missing or unsupported endpoint"
+          },
+          "409": {
+            "description": "Conflict, stale version or challenge replay"
+          },
+          "410": {
+            "description": "Intent or challenge expired"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletRotationCreate"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/wallet-rotations/current": {
+      "get": {
+        "operationId": "recoverWalletRotation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server authorizes the current account, binds both single-use wallet challenges to the same intent, role and network, validates signatures, enforces expiry and version, checks replacement-account conflicts, and atomically completes reassignment/session invalidation. Challenge issuance does not change the intent version. See docs/wallet-rotation-server-recovery.md for canonical signing text. Never log signatures or wallet material.",
+        "responses": {
+          "200": {
+            "description": "Authoritative server intent state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletRotationRecovery"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Account denied"
+          },
+          "404": {
+            "description": "Missing or unsupported endpoint"
+          },
+          "409": {
+            "description": "Conflict, stale version or challenge replay"
+          },
+          "410": {
+            "description": "Intent or challenge expired"
+          }
+        }
+      }
+    },
+    "/wallet-rotations/{id}/challenges": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "challengesWalletRotation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server authorizes the current account, binds both single-use wallet challenges to the same intent, role and network, validates signatures, enforces expiry and version, checks replacement-account conflicts, and atomically completes reassignment/session invalidation. Challenge issuance does not change the intent version. See docs/wallet-rotation-server-recovery.md for canonical signing text. Never log signatures or wallet material.",
+        "responses": {
+          "200": {
+            "description": "Authoritative server intent state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletRotationChallenge"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Account denied"
+          },
+          "404": {
+            "description": "Missing or unsupported endpoint"
+          },
+          "409": {
+            "description": "Conflict, stale version or challenge replay"
+          },
+          "410": {
+            "description": "Intent or challenge expired"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletRotationChallengeRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/wallet-rotations/{id}/proofs": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "proofsWalletRotation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server authorizes the current account, binds both single-use wallet challenges to the same intent, role and network, validates signatures, enforces expiry and version, checks replacement-account conflicts, and atomically completes reassignment/session invalidation. Challenge issuance does not change the intent version. See docs/wallet-rotation-server-recovery.md for canonical signing text. Never log signatures or wallet material.",
+        "responses": {
+          "200": {
+            "description": "Authoritative server intent state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletRotationIntent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Account denied"
+          },
+          "404": {
+            "description": "Missing or unsupported endpoint"
+          },
+          "409": {
+            "description": "Conflict, stale version or challenge replay"
+          },
+          "410": {
+            "description": "Intent or challenge expired"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletRotationProofRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/wallet-rotations/{id}/complete": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "completeWalletRotation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server authorizes the current account, binds both single-use wallet challenges to the same intent, role and network, validates signatures, enforces expiry and version, checks replacement-account conflicts, and atomically completes reassignment/session invalidation. Challenge issuance does not change the intent version. See docs/wallet-rotation-server-recovery.md for canonical signing text. Never log signatures or wallet material.",
+        "responses": {
+          "200": {
+            "description": "Authoritative server intent state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletRotationIntent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Account denied"
+          },
+          "404": {
+            "description": "Missing or unsupported endpoint"
+          },
+          "409": {
+            "description": "Conflict, stale version or challenge replay"
+          },
+          "410": {
+            "description": "Intent or challenge expired"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/wallet-rotations/{id}/cancel": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "cancelWalletRotation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Server authorizes the current account, binds both single-use wallet challenges to the same intent, role and network, validates signatures, enforces expiry and version, checks replacement-account conflicts, and atomically completes reassignment/session invalidation. Challenge issuance does not change the intent version. See docs/wallet-rotation-server-recovery.md for canonical signing text. Never log signatures or wallet material.",
+        "responses": {
+          "200": {
+            "description": "Authoritative server intent state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletRotationIntent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Account denied"
+          },
+          "404": {
+            "description": "Missing or unsupported endpoint"
+          },
+          "409": {
+            "description": "Conflict, stale version or challenge replay"
+          },
+          "410": {
+            "description": "Intent or challenge expired"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -3437,6 +3785,243 @@
             "items": {
               "$ref": "#/components/schemas/TrustedSourceHistoryEvent"
             }
+          }
+        }
+      },
+      "WalletRotationProof": {
+        "type": "object",
+        "required": [
+          "intentId",
+          "network",
+          "walletAddress",
+          "role",
+          "challengeId",
+          "expiresAt",
+          "verified"
+        ],
+        "properties": {
+          "intentId": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet",
+              "public"
+            ]
+          },
+          "walletAddress": {
+            "type": "string",
+            "pattern": "^G[A-Z2-7]{55}$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "current",
+              "replacement"
+            ]
+          },
+          "challengeId": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verified": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      },
+      "WalletRotationIntent": {
+        "type": "object",
+        "required": [
+          "id",
+          "previousAddress",
+          "newAddress",
+          "network",
+          "status",
+          "version",
+          "expiresAt",
+          "completedAt",
+          "currentProof",
+          "replacementProof"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "previousAddress": {
+            "type": "string",
+            "pattern": "^G[A-Z2-7]{55}$"
+          },
+          "newAddress": {
+            "type": "string",
+            "pattern": "^G[A-Z2-7]{55}$"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet",
+              "public"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "READY",
+              "COMPLETED",
+              "CANCELLED",
+              "EXPIRED"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "currentProof": {
+            "$ref": "#/components/schemas/WalletRotationProof",
+            "nullable": true
+          },
+          "replacementProof": {
+            "$ref": "#/components/schemas/WalletRotationProof",
+            "nullable": true
+          }
+        }
+      },
+      "WalletRotationRecovery": {
+        "type": "object",
+        "required": [
+          "intent"
+        ],
+        "properties": {
+          "intent": {
+            "$ref": "#/components/schemas/WalletRotationIntent",
+            "nullable": true
+          }
+        }
+      },
+      "WalletRotationCreate": {
+        "type": "object",
+        "required": [
+          "newAddress",
+          "network"
+        ],
+        "properties": {
+          "newAddress": {
+            "type": "string",
+            "pattern": "^G[A-Z2-7]{55}$"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet",
+              "public"
+            ]
+          }
+        }
+      },
+      "WalletRotationChallengeRequest": {
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "current",
+              "replacement"
+            ]
+          }
+        }
+      },
+      "WalletRotationChallenge": {
+        "type": "object",
+        "required": [
+          "id",
+          "intentId",
+          "network",
+          "walletAddress",
+          "role",
+          "message",
+          "expiresAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "intentId": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet",
+              "public"
+            ]
+          },
+          "walletAddress": {
+            "type": "string",
+            "pattern": "^G[A-Z2-7]{55}$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "current",
+              "replacement"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WalletRotationProofRequest": {
+        "type": "object",
+        "required": [
+          "role",
+          "challengeId",
+          "signature",
+          "network"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "current",
+              "replacement"
+            ]
+          },
+          "challengeId": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet",
+              "public"
+            ]
           }
         }
       }

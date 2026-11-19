@@ -541,5 +541,86 @@
       "events"
     ],
     "routes": []
+  },
+  {
+    "module": "lib/wallet-rotation/store.ts",
+    "schema": "WalletRotationProof",
+    "required": [
+      "intentId",
+      "network",
+      "walletAddress",
+      "role",
+      "challengeId",
+      "expiresAt",
+      "verified"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/wallet-rotation/store.ts",
+    "schema": "WalletRotationIntent",
+    "required": [
+      "id",
+      "previousAddress",
+      "newAddress",
+      "network",
+      "status",
+      "version",
+      "expiresAt",
+      "completedAt",
+      "currentProof",
+      "replacementProof"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/wallet-rotation/store.ts",
+    "schema": "WalletRotationRecovery",
+    "required": [
+      "intent"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/wallet-rotation/store.ts",
+    "schema": "WalletRotationCreate",
+    "required": [
+      "newAddress",
+      "network"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/wallet-rotation/store.ts",
+    "schema": "WalletRotationChallengeRequest",
+    "required": [
+      "role"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/wallet-rotation/store.ts",
+    "schema": "WalletRotationChallenge",
+    "required": [
+      "id",
+      "intentId",
+      "network",
+      "walletAddress",
+      "role",
+      "message",
+      "expiresAt"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/wallet-rotation/store.ts",
+    "schema": "WalletRotationProofRequest",
+    "required": [
+      "role",
+      "challengeId",
+      "signature",
+      "network"
+    ],
+    "routes": []
   }
 ]
