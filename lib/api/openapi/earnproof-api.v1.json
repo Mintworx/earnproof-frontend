@@ -18,6 +18,144 @@
     { "name": "webhooks" }
   ],
   "paths": {
+    "/auth/sessions": {
+      "get": {
+        "operationId": "listAuthenticatedSessions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Aligned to earnproof-backend src/auth/auth.controller.ts. Ownership is enforced by the backend. Full inventories are paginated in the UI; this backend does not accept session inventory cursors.",
+        "responses": {
+          "200": {
+            "description": "Server response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteSessionInventory"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid/revoked session"
+          },
+          "403": {
+            "description": "Denied; current session must use logout"
+          },
+          "404": {
+            "description": "Session missing"
+          }
+        }
+      }
+    },
+    "/auth/sessions/{sessionId}/revoke": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "revokeRemoteSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Aligned to earnproof-backend src/auth/auth.controller.ts. Ownership is enforced by the backend. Full inventories are paginated in the UI; this backend does not accept session inventory cursors.",
+        "responses": {
+          "200": {
+            "description": "Server response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRevocation"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid/revoked session"
+          },
+          "403": {
+            "description": "Denied; current session must use logout"
+          },
+          "404": {
+            "description": "Session missing"
+          }
+        }
+      }
+    },
+    "/auth/sessions/revoke-all-other": {
+      "post": {
+        "operationId": "revokeOtherSessions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Aligned to earnproof-backend src/auth/auth.controller.ts. Ownership is enforced by the backend. Full inventories are paginated in the UI; this backend does not accept session inventory cursors.",
+        "responses": {
+          "200": {
+            "description": "Server response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtherSessionsRevoked"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid/revoked session"
+          },
+          "403": {
+            "description": "Denied; current session must use logout"
+          },
+          "404": {
+            "description": "Session missing"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logoutCurrentSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Aligned to earnproof-backend src/auth/auth.controller.ts. Ownership is enforced by the backend. Full inventories are paginated in the UI; this backend does not accept session inventory cursors.",
+        "responses": {
+          "200": {
+            "description": "Server response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionLogout"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid/revoked session"
+          },
+          "403": {
+            "description": "Denied; current session must use logout"
+          },
+          "404": {
+            "description": "Session missing"
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": ["health"],
@@ -451,6 +589,139 @@
       }
     },
     "schemas": {
+    "RemoteSession": {
+      "type": "object",
+      "required": [
+        "id",
+        "expiresAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "deviceLabel": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "firstSeenAt": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "lastSeenAt": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "lastUsedAt": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revokedAt": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "current": {
+          "type": "boolean"
+        },
+        "isCurrent": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SessionInventoryEnvelope": {
+      "type": "object",
+      "required": [
+        "sessions",
+        "total"
+      ],
+      "properties": {
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/RemoteSession"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "RemoteSessionInventory": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/RemoteSession"
+          }
+        },
+        {
+          "$ref": "#/components/schemas/SessionInventoryEnvelope"
+        }
+      ]
+    },
+    "SessionRevocation": {
+      "type": "object",
+      "required": [
+        "status",
+        "revokedSessionId"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok"
+          ]
+        },
+        "revokedSessionId": {
+          "type": "string"
+        }
+      }
+    },
+    "OtherSessionsRevoked": {
+      "type": "object",
+      "required": [
+        "status",
+        "revokedCount"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok"
+          ]
+        },
+        "revokedCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "SessionLogout": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok"
+          ]
+        }
+      }
+    },
       "HealthResponse": {
         "type": "object",
         "additionalProperties": false,
