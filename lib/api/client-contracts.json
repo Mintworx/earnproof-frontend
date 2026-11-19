@@ -470,5 +470,76 @@
       "recent"
     ],
     "routes": []
+  },
+  {
+    "module": "lib/trusted-sources/store.ts",
+    "schema": "TrustedSource",
+    "required": [
+      "id",
+      "organizationId",
+      "name",
+      "issuerId",
+      "network",
+      "status",
+      "version",
+      "createdAt",
+      "updatedAt"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/trusted-sources/store.ts",
+    "schema": "TrustedSourcePage",
+    "required": [
+      "sources"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/trusted-sources/store.ts",
+    "schema": "TrustedSourceInput",
+    "required": [
+      "name",
+      "issuerId",
+      "network"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/trusted-sources/store.ts",
+    "schema": "TrustedSourcePatch",
+    "required": [],
+    "routes": []
+  },
+  {
+    "module": "lib/trusted-sources/store.ts",
+    "schema": "TrustedSourceTest",
+    "required": [
+      "source",
+      "eligible",
+      "testedAt"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/trusted-sources/store.ts",
+    "schema": "TrustedSourceHistoryEvent",
+    "required": [
+      "id",
+      "action",
+      "version",
+      "occurredAt"
+    ],
+    "routes": []
+  },
+  {
+    "module": "lib/trusted-sources/store.ts",
+    "schema": "TrustedSourceHistory",
+    "required": [
+      "organizationId",
+      "sourceId",
+      "events"
+    ],
+    "routes": []
   }
 ]

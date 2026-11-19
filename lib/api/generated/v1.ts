@@ -349,3 +349,49 @@ export interface ShareAccessSummary {
   rejectedCount: number;
   recent: Array<ShareAccessEvent>;
 }
+
+export interface TrustedSource {
+  id: string;
+  organizationId: string;
+  name: string;
+  issuerId: string;
+  network: "testnet" | "public";
+  status: "ACTIVE" | "DISABLED" | "DELETED";
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrustedSourcePage {
+  sources: Array<TrustedSource>;
+}
+
+export interface TrustedSourceInput {
+  name: string;
+  issuerId: string;
+  network: "testnet" | "public";
+}
+
+export interface TrustedSourcePatch {
+  name?: string;
+  issuerId?: string;
+}
+
+export interface TrustedSourceTest {
+  source: TrustedSource;
+  eligible: boolean;
+  testedAt: string;
+}
+
+export interface TrustedSourceHistoryEvent {
+  id: string;
+  action: "CREATE" | "UPDATE" | "DISABLE" | "TEST";
+  version: number;
+  occurredAt: string;
+}
+
+export interface TrustedSourceHistory {
+  organizationId: string;
+  sourceId: string;
+  events: Array<TrustedSourceHistoryEvent>;
+}
